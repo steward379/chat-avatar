@@ -1,10 +1,13 @@
 # chat-avatar
 chatgpt prompt dialogue bubbles with image uploader
 
+
+## Prequisite
+### Before you start 
 * You HAVE to apply for an openAI API at  https://platform.openai.com/ in advance*
 Put your Open AI API in your .env file as `OPENAI_API_KEY=(YOUR KEY HERE)`
 
-## Server Establishment
+## Server Setup
 First of All, You should type
 
 `npm install` 
@@ -15,7 +18,7 @@ in the outer dir, then run
 
 to run the node server to get data from openAI.
 
-## FrontEnd Establishment
+## Application Setup
 
 Second, get in the inner dir and type 
 
