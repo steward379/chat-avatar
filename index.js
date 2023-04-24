@@ -23,7 +23,7 @@ app.get('/', async (req, res) => {
 });
 
 app.post("/ask", async (req, res) => {
-    const prompt = req.body.prompt;
+    const prompt = req.body.question;
 
     try {
       if (prompt == null) {
@@ -32,7 +32,10 @@ app.post("/ask", async (req, res) => {
 
       const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
-        messages: [{role: "user", content: prompt }],
+        messages: [{
+          role: "user", 
+          content: prompt 
+        }],
         // model: "text-davinci-003",
         // prompt,
         // temperature: 0.7,

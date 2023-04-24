@@ -3,13 +3,18 @@ import loadingGif from "./assets/loading.gif";
 import lens from "./assets/lens.png";
 import './App.css';
 
-
 function App() {
-  const [prompt, updatePrompt] = useState(undefined);
-  const [loading, setLoading] = useState(false);
+  const [question, updateQuestion] = useState("");
   const [answers, setAnswers] = useState([]);
+
+  const [isComposing, setIsComposing] = useState(false);
+  const [timerId, setTimerId] = useState(null);
+
   const [imageUrl, setImageUrl] = useState("");
   const [uploadImage, setUploadImage] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+
 
   function handleImageUpload(e) {
     const file = e.target.files[0];
@@ -23,18 +28,30 @@ function App() {
     reader.readAsDataURL(file);
   }
 
-  useEffect(() => {
-    if (prompt != null && prompt.trim() === "") {
-      setAnswers([...answers]);
-    }
-  }, [prompt]);
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
 
-  const sendPrompt = async (event) => {
-    if (event.key !== "Enter") {
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
+  };
+
+  useEffect(() => {
+    if (!question?.trim?.() && question !== undefined) {
+      setAnswers([]);
+    }
+  }, [question]);
+
+  const sendQuestion = async (event) => {
+    if (!question || question.trim() === "") {
       return;
     }
+    if (isComposing) {
+      return;
+    }
+
     //composition event
-    console.log('prompt', prompt)
+    console.log('prompt', question)
 
     try {
       setLoading(true);
@@ -42,10 +59,12 @@ function App() {
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ question }),
       };
   
       const res = await fetch("/api/ask", requestOptions);
+
+      console.log('sent', question)
 
       if (!res.ok) {
         throw new Error("Something went wrong");
@@ -71,14 +90,16 @@ function App() {
             cols="5" rows="2"
             className="spotlight__input"
             placeholder="Ask me anything..."
-            onChange={(e) => updatePrompt(e.target.value)}
-            onKeyDown={(e) => sendPrompt(e)}
+            onChange={(e) => updateQuestion(e.target.value)}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
+            onKeyDown={(e) => {if(e.key === 'Enter') {sendQuestion();}}}
             disabled={loading}
             style={{
               display: "block",
               backgroundImage: loading ? `url(${loadingGif})` : `url(${lens})`,
             }}
-          /><p>{prompt}</p>
+          /><p>{question}</p>
          <hr></hr>
           <div className="spotlight__answer">
             {/* {answer && <p>{answer}</p>} */}
@@ -93,14 +114,16 @@ function App() {
         <div>
           <input type='file' onChange={handleImageUpload} /> 
           <br></br>
-          {/* {imageUrl &&  */}
-          <img 
-              id="myImg" 
-              // src={imageUrl} 
-              src= {uploadImage ? imageUrl : lens }
-              alt="uploaded image" 
-              height="500"
-          />
+          { uploadImage && (
+                <img 
+                id="myImg" 
+                src={imageUrl} 
+                // src= {uploadImage ? imageUrl : lens }
+                alt="uploaded image" 
+                height="500"
+            />
+          )}
+
         </div>
       </div>
     </div>
